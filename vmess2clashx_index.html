@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VMess to YAML Converter</title>
+</head>
+<body>
+    <h2>VMess Link</h2>
+    <textarea id="vmessLink" rows="5" cols="60"></textarea>
+    <br>
+
+    <h2>Preview YAML Configuration</h2>
+    <button onclick="previewYAML()">Preview YAML</button>
+    <pre id="yamlPreview" style="background-color: #f4f4f4; padding: 10px; border: 1px solid #ccc;"></pre>
+    <br>
+    
+    <h2>Download YAML Configuration</h2>
+    <button onclick="downloadYAML()">Download YAML</button>
+    
+    <script>
+
+        function decodeBase64(base64) {
+            return decodeURIComponent(escape(atob(base64)));
+        }
+
+        function parseVMessLink(vmessLink) {
+            const base64 = vmessLink.replace("vmess://", "");
+            const decoded = decodeBase64(base64);
+            return JSON.parse(decoded);
+        }
+
+        function generateYAML(config) {
+            return `port: 7890
+socks-port: 7891
+allow-lan: true
+mode: Rule
+log-level: silent
+external-controller: 127.0.0.1:9090
+
+proxies:
+
+  - name: "${config.ps || 'vmess-http'}"
+    type: vmess
+    server: "${config.add}"
+    port: ${config.port}
+    uuid: "${config.id}"
+    alterId: ${config.aid}
+    cipher: auto
+    network: "${config.type}"
+    tls: ${config.tls === 'tls' ? 'true' : 'false'}
+    skip-cert-verify: true
+    http-opts:
+      method: "GET"
+      path:
+        - "${config.path}"
+      headers:
+        Host:
+          - "${config.host == undefined ? '' : config.host}"
+`;}
+
+        function previewYAML() {
+            const vmessLink = document.getElementById("vmessLink").value.trim();
+            const config = parseVMessLink(vmessLink);
+            const yamlContent = generateYAML(config);
+            document.getElementById("yamlPreview").textContent = yamlContent;
+        }
+
+        function downloadYAML() {
+            const vmessLink = document.getElementById("vmessLink").value.trim();
+            const config = parseVMessLink(vmessLink);
+            const yamlContent = generateYAML(config);
+
+            const blob = new Blob([yamlContent], { type: "text/yaml" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = (config.ps || 'vmess-http') + ".yaml";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

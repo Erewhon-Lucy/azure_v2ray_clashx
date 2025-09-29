@@ -1,0 +1,16 @@
+#cloud-config
+write_files:
+  - path: /tmp/bootstrap.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -e
+
+      bash <(wget -qO- https://git.io/v2ray.sh) <<EOF | tee /var/lib/cloud/instance/v2ray-install.log
+      1
+      EOF
+
+      grep -o 'vmess://[a-zA-Z0-9+/=]\+' /var/lib/cloud/instance/v2ray-install.log > /var/lib/cloud/instance/v2ray-url.txt
+
+runcmd:
+  - [ bash, /tmp/bootstrap.sh ]
