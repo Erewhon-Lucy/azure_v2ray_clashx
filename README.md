@@ -1,9 +1,9 @@
-个人用Azure🪜自建
+## Azure🪜自建
 
 1. 通过Azure Portal 进入CLI
-2. 上传：cloud-init.yaml和deploy_v2ray.sh
-3. 更改权限： chmod +x deploy_v2ray.sh
-4. 运行：./deploy_v2ray.sh
+2. 上传：`cloud-init.yaml`和`deploy_v2ray.sh`
+3. 更改权限： `chmod +x deploy_v2ray.sh`
+4. 运行：`./deploy_v2ray.sh`
 5. 复制命令行输出的vmess链接，也可以去文件路径看链接
 6. (若未做) 设置端口inbound rules
   ```
